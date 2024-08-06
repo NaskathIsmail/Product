@@ -1,0 +1,65 @@
+﻿@model ProductList.Models.Item
+
+@{
+    ViewBag.Title = "Edit Item";
+}
+
+<h2>Edit Item</h2>
+
+@using (Html.BeginForm("Edit", "Items", FormMethod.Post, new { id = "editItemForm" }))
+{
+    @Html.AntiForgeryToken()
+
+    @Html.HiddenFor(m => m.PKey)
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.Name)
+        @Html.TextBoxFor(m => m.Name, new { @class = "form-control", id = "Name" })
+        <span id="NameError" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.Description)
+        @Html.TextBoxFor(m => m.Description, new { @class = "form-control", id = "Description" })
+        <span id="DescriptionError" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.Price)
+        @Html.TextBoxFor(m => m.Price, new { @class = "form-control", id = "Price" })
+        <span id="PriceError" class="text-danger"></span>
+    </div>
+
+    <button type="button" id="editItemButton" class="btn btn-primary">Save</button>
+}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#editItemButton').click(function () {
+            var item = {
+                PKey: $('input[name="PKey"]').val(),
+                Name: $('#Name').val(),
+                Description: $('#Description').val(),
+                Price: $('#Price').val(),
+                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+            };
+
+            $.ajax({
+                url: '@Url.Action("Edit", "Items")',
+                type: 'POST',
+                data: item,
+                success: function (response) {
+                    if (response.success) {
+                        alert('Item updated successfully!');
+                        window.location.href = '@Url.Action("Index", "Items")';
+                    } else {
+                        $('#NameError').text(response.errors.Name ? response.errors.Name.join(', ') : '');
+                        $('#DescriptionError').text(response.errors.Description ? response.errors.Description.join(', ') : '');
+                        $('#PriceError').text(response.errors.Price ? response.errors.Price.join(', ') : '');
+                    }
+                }
+            });
+        });
+    });
+</script>

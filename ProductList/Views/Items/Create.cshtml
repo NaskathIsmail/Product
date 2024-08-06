@@ -1,0 +1,63 @@
+﻿@model ProductList.Models.Item
+
+@{
+    ViewBag.Title = "Add New Item";
+}
+
+
+<h2>Add New Item</h2>
+
+@using (Html.BeginForm("Create", "Items", FormMethod.Post, new { id = "createItemForm" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.Name)
+        @Html.TextBoxFor(m => m.Name, new { @class = "form-control", id = "Name" })
+        <span id="NameError" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.Description)
+        @Html.TextBoxFor(m => m.Description, new { @class = "form-control", id = "Description" })
+        <span id="DescriptionError" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.Price)
+        @Html.TextBoxFor(m => m.Price, new { @class = "form-control", id = "Price" })
+        <span id="PriceError" class="text-danger"></span>
+    </div>
+
+    <button type="button" id="createItemButton" class="btn btn-primary">Create</button>
+}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#createItemButton').click(function () {
+            var item = {
+                Name: $('#Name').val(),
+                Description: $('#Description').val(),
+                Price: $('#Price').val(),
+                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+            };
+
+            $.ajax({
+                url: '@Url.Action("Create", "Items")',
+                type: 'POST',
+                data: item,
+                success: function (response) {
+                    if (response.success) {
+                        alert('Item created successfully!');
+                        window.location.href = '@Url.Action("Index", "Items")';
+                    } else {
+                        $('#NameError').text(response.errors.Name ? response.errors.Name.join(', ') : '');
+                        $('#DescriptionError').text(response.errors.Description ? response.errors.Description.join(', ') : '');
+                        $('#PriceError').text(response.errors.Price ? response.errors.Price.join(', ') : '');
+                    }
+                }
+            });
+        });
+    });
+</script>
